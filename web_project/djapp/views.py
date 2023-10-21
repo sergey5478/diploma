@@ -1,8 +1,33 @@
+from django.core.mail import EmailMultiAlternatives
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .models import Trubi
 import logging
 
+from .templates.forms import AppointmentForm
+
 logger = logging.getLogger(__name__)
+
+
+def base(request):
+    form = AppointmentForm(request.POST)
+    if form.is_valid():
+        namef = form.cleaned_data['name']
+        from_email = form.cleaned_data['email']
+        adress = form.cleaned_data['adr']
+        Phone = form.cleaned_data['phone']
+        inform = form.cleaned_data['info']
+        text = EmailMultiAlternatives('Заявка на покупку', f'Имя: {namef}'
+                                                           f'Почта отправителя: {from_email}'
+                                                           f'Адрес: {adress}'
+                                                           f'Телефон: {Phone}'
+                                                           f'Дополнительная информация: {inform}',
+                                      to=['sergey.fomin.90@inbox.ru'])
+        text.send()
+
+        return render(request, 'djapp/base.html', {'form': form})
+
+    return render(request, 'djapp/base.html', {'form': form})
 
 
 def index(request):
